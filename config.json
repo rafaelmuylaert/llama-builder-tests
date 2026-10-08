@@ -1,0 +1,40 @@
+{
+  "repos": [
+    {
+      "repo_url": "https://github.com/RaymondHuang210129/llama.cpp-adaptive-kv-streaming",
+      "build": "build-v2",
+      "upload_target": ["llama-server"],
+      "target": "llama-server test-cuda-compiled-features test-kv-stream-model test-kv-stream-context",
+      "extra_flags": "-DGGML_CUDA=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DICU_USE_STATIC_LIBS=ON -DGGML_CUDA_FA=ON -DGGML_CUDA_FA_ALL_QUANTS=ON  -DLLAMA_BUILD_TESTS=ON",
+      "test_upload_url": "https://github.com/rafaelmuylaert/llama-builder-tests",
+      "test_gpus": ["0", "1"],
+      "gpu_arena_mib": {
+          "0": "2000",
+          "1": "10000"
+      },
+      "test_commands": [
+"python3 benchmarks/run-fixed-span-sweep.py --model /models/Qwen3.8-27B-UD-IQ4_XS.gguf --server ./build-v2/bin/llama-server --mtp-lengths 0,1,2,3 --arena-mib {arena_mib} --output {archive_dir}/CUDA{gpu_id}_sweep1 --no-manage-production --context-step 65536 --batch-size 256 --ubatch-size 256",
+"./build-v2/bin/test-cuda-compiled-features",
+"./build-v2/bin/test-kv-stream-model --cuda-native-admission",
+"./build-v2/bin/test-kv-stream-context --model /models/Qwen3.8-27B-UD-IQ4_XS.gguf --embedded-mtp-pair",
+"./build-v2/bin/test-kv-stream-context --model /models/Qwen3.8-27B-UD-IQ4_XS.gguf --target-stream-tg4",
+"./build-v2/bin/test-kv-stream-context --model /models/Qwen3.8-27B-UD-IQ4_XS.gguf --resume-only"
+]
+    },
+    {
+      "repo_url": "https://github.com/troed/llama.cpp-adaptive-kv-streaming",
+      "build": "build-v2",
+      "target": "llama-server",
+      "extra_flags": "-DGGML_CUDA=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DICU_USE_STATIC_LIBS=ON",
+      "faquants": "q8_0-q4_0;q8_0-q8_0;q4_0-q4_0",
+      "test_upload_url": "https://github.com/rafaelmuylaert/llama-builder-tests",
+      "test_command": "python3 benchmarks/run-fixed-span-sweep.py --model /models/Qwen3.8-27B-UD-IQ4_XS.gguf --server ./build-v2/bin/llama-server --mtp-lengths 0,1,2,3 --arena-mib 2240 --output {archive_dir}/CUDA{gpu_id} --no-manage-production"
+    },
+    {
+      "repo_url": "https://github.com/lkarlslund/laya.cpp",
+      "extra_ldflags": "-static-libstdc++ -static-libgcc",
+      "extra_flags": "-DGGML_CUDA=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DICU_USE_STATIC_LIBS=ON",
+      "output_folder": "lkarlslund/laya.cpp"
+    }
+  ]
+}
