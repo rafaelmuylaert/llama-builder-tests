@@ -212,7 +212,7 @@ def build_repo(repo, do_build=True, do_test=True, do_upload=True):
             test_cmds = [test_cmds]
 
         if test_cmds:
-            test_gpus = repo.get("test_gpus", ["0", "1"])
+            test_gpus = repo.get("test_gpus", ["0"])
             # Pull the arena_mib mapping from JSON, empty by default
             gpu_arena_mib = repo.get("gpu_arena_mib", {})
             
