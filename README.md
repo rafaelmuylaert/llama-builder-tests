@@ -101,11 +101,44 @@ You can use the following placeholders inside your `test_commands`:
 
 ---
 
-## Docker Setup
+Here are the updated **Installation & Setup** and **CLI Usage** sections formatted for your repository's README.
 
-### 1. `docker-compose.yml`
+---
 
-> **Note:** Mount the entire project directory (`/srv/media/CodeProjects/llama-builder:/app`) rather than single files so editing `config.json` on the host reflects inside the container without requiring a container restart.
+## 📥 Installation & Setup
+
+### 1. Clone the Repository
+
+Clone the repository to your host machine and navigate into the project directory:
+
+```bash
+git clone https://github.com/your-username/llama-builder.git
+cd llama-builder
+
+```
+
+### 2. Configure Your Repositories
+
+Copy or edit `config.json` in the root folder to define the repositories you want to monitor and build:
+
+```bash
+nano config.json
+
+```
+
+### 3. Set Up Folders and Environment Variables
+
+Edit the docker-compose file to set up folder locations and your github token for uploading.
+
+Folders: 
+* **App**: Mount /app to the folder where this repository was cloned in the host. Both builder.py and config.json need to be in that folder.
+* **Output**: Folder where the built binaries and test logs will be saved. If you map the same folder to a llama-swap container, you will be able to map your binaries to run the latest version of each fork.
+* **Models**: Folder where the model weights are saved. Used for testing.
+
+Create an environment file or pass your GitHub Personal Access Token (with `repo` write permissions) to Docker Compose:
+
+
+`docker-compose.yml`
 
 ```yaml
 version: "3.8"
@@ -131,7 +164,9 @@ services:
 
 ```
 
-### 2. Build and Run
+### 4. Launch the Daemon
+
+Build and start the container using Docker Compose:
 
 ```bash
 docker compose up -d --build
@@ -140,22 +175,32 @@ docker compose up -d --build
 
 ---
 
-## CLI Usage (Manual Overrides)
+## 🎮 CLI Usage (Manual Overrides)
 
-You can run manual one-shot operations for a specific repository by index (1-based index matching the order in `config.json`):
+You can trigger manual one-shot operations for a specific repository by passing its 1-based index (matching the order of `repos` in `config.json`) directly into the running container.
+
+### Using `docker compose exec`
 
 ```bash
-# Force build and test for the 1st repo in config.json (skip GitHub upload)
-python3 builder.py --build 1
+# Force build and test for the 1st repo (skips GitHub upload)
+docker compose exec llama-builder python3 /app/builder.py --build 1
 
-# Force run tests for the 1st repo (skip clean build and upload)
-python3 builder.py --test 1
+# Force run tests for the 1st repo (skips rebuild and upload)
+docker compose exec llama-builder python3 /app/builder.py --test 1
 
-# Upload existing build/test artifacts for the 1st repo to GitHub
-python3 builder.py --upload 1
+# Upload latest existing build/test artifacts for the 1st repo to GitHub
+docker compose exec llama-builder python3 /app/builder.py --upload 1
 
-# Force complete pipeline (build, test, upload) for the 1st repo
-python3 builder.py --buildupload 1
+# Force the complete pipeline (build, test, and upload) for the 1st repo
+docker compose exec llama-builder python3 /app/builder.py --buildupload 1
+
+```
+
+### Using `docker exec`
+
+```bash
+# Force complete pipeline for the 1st repo
+docker exec llama-builder python3 /app/builder.py --buildupload 1
 
 ```
 
